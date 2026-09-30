@@ -2,13 +2,11 @@
 
 ## 1. 프로젝트 개요
 
-AWS 환경에서 VPC를 직접 구성하고 Public Subnet과 Private Subnet을 분리하여 EC2 인스턴스를 배치했습니다.
+AWS VPC를 기반으로 Public Subnet과 Private Subnet을 분리하고, 각각 Public EC2와 Private EC2를 배치했습니다.
 
-Public Subnet에는 Bastion Host 역할을 수행하는 Public EC2를 구성하고, Private Subnet에는 외부에서 직접 접근할 수 없는 Private EC2를 구성했습니다.
+Public EC2는 Bastion Host로 활용하여 외부에서 Private EC2를 관리할 수 있도록 했으며, Internet-facing ALB를 통해 외부 HTTP 요청이 Private EC2의 Web Server로 전달되도록 구성했습니다.
 
-또한 Internet-facing Application Load Balancer(ALB)를 구성하여 인터넷에서 들어오는 HTTP 요청을 Private EC2의 Web Server로 전달하도록 구성했습니다.
-
-이번 프로젝트에서는 NAT Gateway를 사용하지 않고 AWS VPC의 기본적인 네트워크 구조와 Public / Private Subnet, Route Table, Internet Gateway, Security Group, Bastion Host, ALB 및 Target Group의 동작 방식을 직접 구축하고 테스트했습니다.
+NAT Gateway 없이 VPC, Subnet, Route Table, Internet Gateway, Security Group, Bastion Host, ALB, Target Group 간의 네트워크 흐름과 접근 제어 방식을 직접 확인했습니다.
 
 
 ---
@@ -76,21 +74,21 @@ Internet → Internet-facing ALB → Target Group → Private EC2 → Web Server
                          │                  │
                          ▼                  ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                         AWS VPC                                │
+│                         AWS VPC                                 │
 │                       10.10.0.0/16                              │
 │                                                                 │
-│  ┌─────────────────────────┐     ┌───────────────────────────┐ │
-│  │ Public Subnet           │     │ Private Subnet            │ │
-│  │ 10.10.1.0/24            │     │ 10.10.2.0/24              │ │
-│  │                         │     │                           │ │
-│  │ Public EC2              │────▶│ Private EC2                │ │
-│  │ Bastion Host            │ SSH │ 10.10.2.105               │ │
-│  │                         │     │ HTTP :80                   │ │
-│  └─────────────────────────┘     └───────────────────────────┘ │
+│  ┌─────────────────────────┐     ┌───────────────────────────┐  │
+│  │ Public Subnet           │     │ Private Subnet            │  │
+│  │ 10.10.1.0/24            │     │ 10.10.2.0/24              │  │
+│  │                         │     │                           │  │
+│  │ Public EC2              │────▶│ Private EC2              │  │
+│  │ Bastion Host            │ SSH │ 10.10.2.105               │  │
+│  │                         │     │ HTTP :80                  │  │
+│  └─────────────────────────┘     └───────────────────────────┘  │
 │                                                                 │
-│  ALB는 Public Subnet 2개에 연결                                    │
-│  - us-east-2a : aws-devops-public-subnet                         │
-│  - us-east-2b : aws-devops-public-subnet-2                        │
+│  ALB는 Public Subnet 2개에 연결                                  │
+│  - us-east-2a : aws-devops-public-subnet                        │
+│  - us-east-2b : aws-devops-public-subnet-2                      │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ~~~
@@ -134,23 +132,6 @@ Private EC2
 Web Server
 ~~~
 
-### 📸 SCREENSHOT 01 - 전체 Architecture
-
-> 포트폴리오용 Architecture 이미지를 넣는 위치입니다.
->
-> Windows PC는 AWS VPC 외부에 배치합니다.
->
-> AWS VPC 내부에는 다음 구성 요소를 배치합니다.
->
-> - Internet-facing ALB
-> - Public Subnet
-> - Public EC2
-> - Private Subnet
-> - Private EC2
->
-> 관리 트래픽과 서비스 트래픽을 서로 다른 경로로 표시하면 좋습니다.
-
-
 ---
 
 ## 4. AWS 환경
@@ -186,9 +167,10 @@ ALB는 서로 다른 Availability Zone의 Public Subnet에 연결했습니다.
 | ALB | aws-devops-alb |
 | Target Group | aws-devops-tg |
 
-### 📸 SCREENSHOT 02 - AWS Region
+###  SCREENSHOT 02 - AWS Region
 
-> AWS Console에서 `us-east-2` Region에 프로젝트 리소스가 생성되어 있는 화면을 캡처합니다.
+<img width="1541" height="335" alt="image" src="https://github.com/user-attachments/assets/49cc08d1-38cb-4d0a-b7b1-7fa02da66923" />
+
 
 
 ---
@@ -213,9 +195,10 @@ VPC의 전체 네트워크 범위는 다음과 같습니다.
 
 이 VPC 내부에 Public Subnet과 Private Subnet을 구성했습니다.
 
-### 📸 SCREENSHOT 03 - VPC
+###  SCREENSHOT 03 - VPC
 
-> AWS Console → VPC → Your VPCs에서 다음 정보가 보이도록 캡처합니다.
+> <img width="1420" height="288" alt="image" src="https://github.com/user-attachments/assets/e0b620da-8d65-45e1-beb0-edf642c223de" />
+
 >
 > - VPC Name: aws-devops-vpc
 > - IPv4 CIDR: 10.10.0.0/16
@@ -281,9 +264,10 @@ Private Subnet에는 Public IP가 없는 Private EC2를 배치했습니다.
 | aws-devops-public-subnet-2 | 10.10.3.0/24 | us-east-2b | ALB |
 | aws-devops-private-subnet | 10.10.2.0/24 | us-east-2a | Private EC2 |
 
-### 📸 SCREENSHOT 04 - Subnet
+###  SCREENSHOT 04 - Subnet
 
-> AWS Console → VPC → Subnets에서 3개의 Subnet을 한 화면에 확인할 수 있도록 캡처합니다.
+> <img width="1287" height="209" alt="image" src="https://github.com/user-attachments/assets/00c68abd-e5d1-41c8-b9f4-2ff3b2cde384" />
+
 >
 > 가능하면 다음 항목이 함께 보이도록 합니다.
 >
@@ -309,9 +293,10 @@ aws-devops-vpc
 
 Internet Gateway를 VPC에 연결하여 Public Subnet의 리소스가 인터넷과 통신할 수 있도록 구성했습니다.
 
-### 📸 SCREENSHOT 05 - Internet Gateway
+###  SCREENSHOT 05 - Internet Gateway
 
-> AWS Console → VPC → Internet Gateways에서 다음 정보가 보이도록 캡처합니다.
+> <img width="1095" height="187" alt="image" src="https://github.com/user-attachments/assets/7c09a776-34da-4614-baed-7619824d8f6f" />
+
 >
 > - aws-devops-igw
 > - Attached VPC: aws-devops-vpc
@@ -443,9 +428,10 @@ Private EC2
 이를 통해 Private EC2에 Public IP를 직접 할당하지 않고도 관리할 수 있습니다.
 
 
-### 📸 SCREENSHOT 08 - Public EC2
+###  SCREENSHOT 08 - Public EC2
 
-> EC2 Console에서 `aws-devops-vpc-ec2`를 선택하고 다음 정보가 보이도록 캡처합니다.
+> <img width="1263" height="528" alt="image" src="https://github.com/user-attachments/assets/df6fe686-f34b-4297-9ed8-1c5ac8a5c687" />
+
 >
 > - Instance Type
 > - Public IPv4
@@ -488,9 +474,10 @@ Private EC2에는 Public IP를 할당하지 않았습니다.
 
 따라서 인터넷에서 Private EC2로 직접 SSH 접속할 수 없습니다.
 
-### 📸 SCREENSHOT 09 - Private EC2
+###  SCREENSHOT 09 - Private EC2
 
-> EC2 Console에서 `aws-devops-private-ec2`를 선택하고 다음 정보가 보이도록 캡처합니다.
+> <img width="1228" height="524" alt="image" src="https://github.com/user-attachments/assets/0c8779ec-9d57-4e43-ad1e-9437948e1b70" />
+
 >
 > - Private IPv4: 10.10.2.105
 > - Public IPv4가 없는 상태
@@ -534,9 +521,10 @@ AWS DevOps Private EC2 - ALB TEST
 Private EC2에서 Web Server가 정상적으로 동작하는 것을 확인했습니다.
 
 
-### 📸 SCREENSHOT 10 - Private EC2 Web Server
+###  SCREENSHOT 10 - Private EC2 Web Server
 
-> Private EC2 터미널에서 다음 명령어와 결과가 함께 보이도록 캡처합니다.
+> <img width="409" height="41" alt="image" src="https://github.com/user-attachments/assets/d0775d3a-c151-4c07-be66-036261936dde" />
+
 >
 > `curl http://localhost`
 >
@@ -579,11 +567,9 @@ Private EC2
 10.10.2.105
 ~~~
 
-### 📸 SCREENSHOT 11 - Bastion SSH 접속
+###  SCREENSHOT 11 - Bastion SSH 접속
 
-> Windows PowerShell에서 Private EC2에 정상적으로 접속한 화면을 캡처합니다.
->
-> 가능하면 다음 정보가 화면에 함께 보이도록 합니다.
+> <img width="958" height="273" alt="image" src="https://github.com/user-attachments/assets/51c20d4b-1528-4b0b-862f-ba1abcdd4539" />
 >
 > - PowerShell
 > - SSH 명령어
@@ -666,20 +652,6 @@ Public EC2
 Private EC2
 ~~~
 
-### 📸 SCREENSHOT 12 - Security Group
-
-> 다음 화면을 캡처합니다.
->
-> 1. Private EC2 Security Group
->    - SSH 22 → aws-devops-vpc-sg
->    - HTTP 80 → aws-devops-alb-sg
->
-> 2. ALB Security Group
->    - HTTP 80 → 0.0.0.0/0
->
-> AWS 보안 구성을 보여주는 중요한 포트폴리오 자료입니다.
-
-
 ---
 
 ## 14. Application Load Balancer 구성
@@ -710,11 +682,9 @@ aws-devops-public-subnet-2
 ALB는 두 개의 Availability Zone에 걸쳐 구성했습니다.
 
 
-### 📸 SCREENSHOT 13 - ALB 구성
+###  SCREENSHOT 13 - ALB 구성
 
-> EC2 → Load Balancers → `aws-devops-alb` 화면을 캡처합니다.
->
-> 다음 정보가 보이도록 합니다.
+> <img width="1368" height="385" alt="image" src="https://github.com/user-attachments/assets/89a27413-43d4-4bf1-8226-98a0e6d0f084" />
 >
 > - Internet-facing
 > - IPv4
@@ -783,11 +753,10 @@ aws-devops-alb-sg
 Healthy
 ~~~
 
-### 📸 SCREENSHOT 14 - Target Group Healthy
+###  SCREENSHOT 14 - Target Group Healthy
 
-> EC2 → Target Groups → `aws-devops-tg` → Targets 화면을 캡처합니다.
->
-> 다음 정보가 보이도록 합니다.
+> <img width="1388" height="436" alt="image" src="https://github.com/user-attachments/assets/14229552-e801-4816-865d-fcdf986da0db" />
+
 >
 > - Private EC2
 > - Port 80
@@ -840,15 +809,9 @@ Private EC2
 Web Server
 ~~~
 
-### 📸 SCREENSHOT 15 - ALB 접속 결과
+###  SCREENSHOT 15 - ALB 접속 결과
 
-> 브라우저에서 ALB DNS 주소로 접속한 화면을 캡처합니다.
->
-> 주소창에 ALB DNS가 보이고 화면에 다음 문구가 표시되도록 합니다.
->
-> `AWS DevOps Private EC2 - ALB TEST`
->
-> 이번 프로젝트에서 가장 중요한 결과 화면 중 하나입니다.
+<img width="882" height="186" alt="image" src="https://github.com/user-attachments/assets/89206576-2a74-466e-8e91-fdd98079af0e" />
 
 
 ---
@@ -865,116 +828,9 @@ Private EC2에는 NAT Gateway가 구성되어 있지 않기 때문에 외부 인
 
 이를 통해 Public Subnet과 Private Subnet의 네트워크 차이를 확인했습니다.
 
-### 📸 SCREENSHOT 16 - Private EC2 인터넷 접근 제한
+###  SCREENSHOT 16 - Private EC2 인터넷 접근 제한
 
-> Private EC2에서 외부 인터넷 접근이 되지 않는 결과 화면을 캡처합니다.
->
-> 명령어와 연결 실패 또는 Timeout 결과가 함께 보이면 충분합니다.
-
-
----
-
-## 18. 최종 네트워크 구조
-
-최종적으로 다음과 같은 구조를 구축했습니다.
-
-~~~text
-                         ┌────────────────────┐
-                         │     Windows PC     │
-                         │     Local PC       │
-                         └─────────┬──────────┘
-                                   │
-                               SSH :22
-                                   │
-                               Internet
-                                   │
-                                   ▼
-                         ┌────────────────────┐
-                         │     Public EC2     │
-                         │   Bastion Host     │
-                         └─────────┬──────────┘
-                                   │
-                               SSH :22
-                                   │
-                                   ▼
-┌──────────────────────────────────────────────────────────────────┐
-│                         AWS VPC                                 │
-│                        10.10.0.0/16                              │
-│                                                                  │
-│  ┌─────────────────────────┐     ┌────────────────────────────┐ │
-│  │     Public Subnet       │     │      Private Subnet        │ │
-│  │     10.10.1.0/24        │     │      10.10.2.0/24         │ │
-│  │                         │     │                            │ │
-│  │  ┌───────────────────┐  │     │  ┌──────────────────────┐ │ │
-│  │  │    Public EC2     │──┼────▶│  │     Private EC2      │ │ │
-│  │  │   Bastion Host    │  │ SSH │  │     10.10.2.105      │ │ │
-│  │  └───────────────────┘  │     │  │      HTTP :80        │ │ │
-│  └─────────────────────────┘     │  └──────────────────────┘ │ │
-│                                  │                            │ │
-│          ┌───────────────────────┴───────┐                    │ │
-│          │       Internet-facing ALB     │                    │ │
-│          │       HTTP :80                │                    │ │
-│          └───────────────────────────────┘                    │ │
-│                                                                  │
-└──────────────────────────────────────────────────────────────────┘
-~~~
-
-### 📸 SCREENSHOT 17 - VPC Resource Map
-
-> AWS VPC Resource Map 또는 관련 VPC 화면에서 실제 구성된 리소스를 보여주는 화면을 캡처합니다.
->
-> Architecture 이미지와 별도로 AWS Console에서 실제 구축 결과를 보여주는 용도로 사용합니다.
-
-
----
-
-## 19. 주요 명령어 정리
-
-### Public EC2 SSH 접속
-
-~~~powershell
-ssh -i "$HOME\Downloads\aws-devops-lab-key.pem" ec2-user@3.143.203.86
-~~~
-
-### Bastion을 통한 Private EC2 접속
-
-~~~powershell
-ssh -o "ProxyCommand=ssh -i `"$HOME\Downloads\aws-devops-lab-key.pem`" -W %h:%p ec2-user@3.143.203.86" -i "$HOME\Downloads\aws-devops-lab-key.pem" ec2-user@10.10.2.105
-~~~
-
-### Web Server 파일 생성
-
-~~~bash
-echo "AWS DevOps Private EC2 - ALB TEST" | sudo tee /tmp/index.html
-~~~
-
-### Python HTTP Server 실행
-
-~~~bash
-sudo nohup python3 -m http.server 80 --directory /tmp > /tmp/http.log 2>&1 &
-~~~
-
-### Web Server 테스트
-
-~~~bash
-curl http://localhost
-~~~
-
-### Network 확인
-
-~~~bash
-ip addr
-~~~
-
-~~~bash
-ip route
-~~~
-
-### 외부 인터넷 접근 테스트
-
-~~~bash
-curl -I https://www.google.com
-~~~
+<img width="519" height="86" alt="image" src="https://github.com/user-attachments/assets/dec5a595-be38-4d2e-97af-8641aae46228" />
 
 
 ---
@@ -1103,113 +959,6 @@ Private EC2
 
 Private EC2의 SSH 포트는 인터넷 전체에 공개하지 않고 Public EC2의 Security Group을 Source로 지정했습니다.
 
-### 📸 SCREENSHOT 18 - 최종 Security Group
-
-> Private EC2 Security Group의 최종 Inbound Rules 화면을 캡처합니다.
->
-> 다음 규칙이 보이도록 합니다.
->
-> - SSH 22 → aws-devops-vpc-sg
-> - HTTP 80 → aws-devops-alb-sg
->
-> 이 화면은 프로젝트의 보안 설계를 증명하는 자료로 사용합니다.
-
-
----
-
-## 22. 비용 관리
-
-이번 프로젝트는 AWS 실습 비용을 최소화하기 위해 NAT Gateway를 사용하지 않았습니다.
-
-Public Subnet은 Internet Gateway를 통해 인터넷과 통신할 수 있도록 구성했습니다.
-
-~~~text
-Internet
-   │
-   ▼
-Internet Gateway
-   │
-   ▼
-Public Subnet
-~~~
-
-Private Subnet에는 NAT Gateway를 구성하지 않았습니다.
-
-~~~text
-Private Subnet
-   │
-   ▼
-Private EC2
-   │
-   X
-Internet
-~~~
-
-따라서 Private EC2는 외부 인터넷으로 직접 나갈 수 없습니다.
-
-실습 종료 후에는 사용하지 않는 AWS 리소스를 확인하여 불필요한 비용이 발생하지 않도록 관리해야 합니다.
-
-
----
-
-## 23. 프로젝트 결과
-
-이번 프로젝트에서는 AWS에서 다음과 같은 인프라를 직접 구축했습니다.
-
-~~~text
-AWS VPC
-  │
-  ├── Public Subnet
-  │      └── Public EC2
-  │             └── Bastion Host
-  │
-  ├── Private Subnet
-  │      └── Private EC2
-  │             └── Web Server
-  │
-  ├── Internet Gateway
-  │
-  ├── Public Route Table
-  │
-  ├── Private Route Table
-  │
-  ├── Security Group
-  │
-  └── Application Load Balancer
-           │
-           └── Target Group
-                  │
-                  └── Private EC2
-~~~
-
-최종적으로 다음 두 가지 경로가 정상적으로 동작하는 것을 확인했습니다.
-
-### 관리자 접근
-
-~~~text
-Windows PC
-    ↓
-Internet
-    ↓
-Public EC2
-    ↓
-Private EC2
-~~~
-
-### 사용자 서비스 접근
-
-~~~text
-Internet
-    ↓
-Internet-facing ALB
-    ↓
-Target Group
-    ↓
-Private EC2
-    ↓
-Web Server
-~~~
-
 
 ---
 
@@ -1330,49 +1079,6 @@ AWS DevSecOps
 ~~~
 
 기존 Linux / Server / Security 운영 경험을 기반으로 AWS Cloud, Infrastructure as Code, Container, CI/CD, Kubernetes 및 DevSecOps 영역까지 역량을 확장하는 것을 목표로 합니다.
-
-
----
-
-## 27. Screenshot Checklist
-
-포트폴리오 작성 시 다음 화면을 캡처하여 README에 순서대로 배치하거나 별도의 `screenshots` 폴더에서 관리할 수 있습니다.
-
-### 필수 Screenshot
-
-- [ ] 01. 전체 Architecture
-- [ ] 02. AWS Region
-- [ ] 03. VPC
-- [ ] 04. Subnets
-- [ ] 08. Public EC2
-- [ ] 09. Private EC2
-- [ ] 11. Bastion SSH 접속
-- [ ] 12. Security Groups
-- [ ] 13. ALB
-- [ ] 14. Target Group - Healthy
-- [ ] 15. ALB 접속 결과
-
-### 추가 Screenshot
-
-- [ ] 05. Internet Gateway
-- [ ] 06. Public Route Table
-- [ ] 07. Private Route Table
-- [ ] 10. Private Web Server
-- [ ] 16. Private EC2 인터넷 접근 제한
-- [ ] 17. VPC Resource Map
-- [ ] 18. 최종 Security Group
-
-### 포트폴리오에서 특히 중요한 화면
-
-1. 전체 Architecture
-2. VPC / Subnet 구성
-3. Public / Private EC2 구성
-4. Bastion을 통한 SSH 접속
-5. Security Group 구성
-6. Target Group Healthy
-7. ALB 접속 결과
-
-위 화면을 중심으로 구성하면 실제 AWS 인프라를 직접 구축하고 테스트했다는 점을 효과적으로 보여줄 수 있습니다.
 
 
 ---
