@@ -81,7 +81,7 @@ Internet → Internet-facing ALB → Target Group → Private EC2 → Web Server
 │  │ Public Subnet           │     │ Private Subnet            │  │
 │  │ 10.10.1.0/24            │     │ 10.10.2.0/24              │  │
 │  │                         │     │                           │  │
-│  │ Public EC2              │────▶│ Private EC2              │  │
+│  │ Public EC2              │───▶│ Private EC2               │  │
 │  │ Bastion Host            │ SSH │ 10.10.2.105               │  │
 │  │                         │     │ HTTP :80                  │  │
 │  └─────────────────────────┘     └───────────────────────────┘  │
