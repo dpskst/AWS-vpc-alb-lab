@@ -269,8 +269,6 @@ Private Subnet에는 Public IP가 없는 Private EC2를 배치했습니다.
 > <img width="1287" height="209" alt="image" src="https://github.com/user-attachments/assets/00c68abd-e5d1-41c8-b9f4-2ff3b2cde384" />
 
 >
-> 가능하면 다음 항목이 함께 보이도록 합니다.
->
 > - Name
 > - CIDR
 > - Availability Zone
@@ -358,22 +356,20 @@ aws-devops-private-rt
 이번 프로젝트에서는 NAT Gateway를 사용하지 않았기 때문에 Private Route Table에 NAT Gateway를 통한 인터넷 경로를 구성하지 않았습니다.
 
 
-### 📸 SCREENSHOT 06 - Public Route Table
+###  SCREENSHOT 06 - Public Route Table
 
-> `aws-devops-public-rt` 화면에서 다음 내용을 확인할 수 있도록 캡처합니다.
->
-> - 0.0.0.0/0
-> - Internet Gateway
-> - Subnet Association
+<img width="790" height="293" alt="image" src="https://github.com/user-attachments/assets/637b319a-fe3f-4ac3-bbd5-88f4b7bd8ac6" />
+<img width="926" height="300" alt="image" src="https://github.com/user-attachments/assets/739df141-e53f-46c7-9a5e-8475dae9fd64" />
 
 
-### 📸 SCREENSHOT 07 - Private Route Table
 
-> `aws-devops-private-rt` 화면에서 다음 내용을 확인할 수 있도록 캡처합니다.
->
-> - Routes
-> - Subnet Association
->
+
+###  SCREENSHOT 07 - Private Route Table
+
+<img width="1035" height="258" alt="image" src="https://github.com/user-attachments/assets/ea6bf34c-dd5b-4740-bdcd-a416863c1266" />=
+<img width="951" height="259" alt="image" src="https://github.com/user-attachments/assets/080a69a1-038f-4047-954a-c383c4320a08" />
+
+
 > Private Route Table에 NAT Gateway가 없는 것도 확인할 수 있습니다.
 
 
@@ -623,8 +619,8 @@ aws-devops-alb-sg
 ALB는 인터넷에서 HTTP 요청을 받을 수 있도록 구성했습니다.
 
 | Type | Port | Source |
-|---|---:|---|
-| HTTP | 80 | 0.0.0.0/0 |
+|----- |----- |------- |
+| HTTP | 80 | 0.0.0.0/0|
 
 
 ### 최종 접근 구조
@@ -1077,9 +1073,6 @@ Prometheus + Grafana
 Project 12
 AWS DevSecOps
 ~~~
-
-기존 Linux / Server / Security 운영 경험을 기반으로 AWS Cloud, Infrastructure as Code, Container, CI/CD, Kubernetes 및 DevSecOps 영역까지 역량을 확장하는 것을 목표로 합니다.
-
 
 ---
 
