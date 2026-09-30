@@ -831,9 +831,9 @@ Private EC2에는 NAT Gateway가 구성되어 있지 않기 때문에 외부 인
 
 ---
 
-## 20. Troubleshooting
+## 18. Troubleshooting
 
-### 20.1 Private EC2에서 dnf install이 되지 않는 문제
+### 18.1 Private EC2에서 dnf install이 되지 않는 문제
 
 Private EC2에서 다음 명령어를 실행했을 때 정상적으로 패키지를 다운로드하지 못했습니다.
 
@@ -852,7 +852,7 @@ sudo nohup python3 -m http.server 80 --directory /tmp > /tmp/http.log 2>&1 &
 ~~~
 
 
-### 20.2 ALB Health Check가 Unhealthy인 문제
+### 18.2 ALB Health Check가 Unhealthy인 문제
 
 처음 ALB Target Group의 Health Check가 다음 상태였습니다.
 
@@ -877,7 +877,7 @@ Healthy
 ~~~
 
 
-### 20.3 Private EC2에 직접 SSH 접속이 되지 않는 문제
+### 18.3 Private EC2에 직접 SSH 접속이 되지 않는 문제
 
 Private EC2에는 Public IP가 없기 때문에 Windows PC에서 직접 SSH 접속할 수 없습니다.
 
@@ -905,7 +905,7 @@ Private EC2
 ~~~
 
 
-### 20.4 Security Group 수정 오류
+### 18.4 Security Group 수정 오류
 
 기존에 `0.0.0.0/0`으로 등록된 IPv4 규칙을 Security Group Source로 변경하려고 했을 때 다음과 같은 오류가 발생했습니다.
 
@@ -918,7 +918,7 @@ existing IPv4 CIDR rule cannot specify referenced group ID
 
 ---
 
-## 21. 보안 구성
+## 19. 보안 구성
 
 이번 프로젝트에서는 Security Group을 이용하여 접근 범위를 분리했습니다.
 
@@ -958,7 +958,7 @@ Private EC2의 SSH 포트는 인터넷 전체에 공개하지 않고 Public EC2�
 
 ---
 
-## 24. 프로젝트를 통해 학습한 내용
+## 20. 프로젝트를 통해 학습한 내용
 
 ### AWS Network
 
@@ -1005,7 +1005,7 @@ Private EC2의 SSH 포트는 인터넷 전체에 공개하지 않고 Public EC2�
 
 ---
 
-## 25. 프로젝트 핵심 정리
+## 21. 프로젝트 핵심 정리
 
 이번 프로젝트의 핵심은 단순히 EC2를 생성하는 것이 아니라 AWS의 기본적인 네트워크 구조를 직접 구축하고 각 구성 요소의 역할을 확인한 것입니다.
 
@@ -1038,7 +1038,7 @@ Private EC2 Web Server
 
 ---
 
-## 26. 향후 확장 계획
+## 22. 향후 확장 계획
 
 이번 프로젝트를 기반으로 다음 단계의 DevOps 프로젝트로 확장할 예정입니다.
 
@@ -1076,6 +1076,6 @@ AWS DevSecOps
 
 ---
 
-## 28. 프로젝트 한 줄 요약
+## 23. 프로젝트 한 줄 요약
 
 > AWS VPC 환경에서 Public / Private Subnet을 분리하고 Bastion Host를 통한 Private EC2 관리 및 Internet-facing ALB를 통한 Private Web Server 서비스를 구현했습니다.
